@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup, NavigableString
 import requests
 
 SOURCE = 'https://myfin.by/currency/'
+
 CITIES = {1: ("minsk", "Минск"),
           2: ("brest", "Брест"),
           3: ("vitebsk", "Витебск"),
@@ -11,6 +12,7 @@ CITIES = {1: ("minsk", "Минск"),
           5: ("grodno", "Гродно"),
           6: ("mogilev", "Могилев"),
           }
+
 PROPOSAL = (('usd_buy', 'best_usd_buy'),
             ('usd_sell', 'best_usd_sell'),
             ('euro_buy', 'best_euro_buy'),
@@ -18,7 +20,8 @@ PROPOSAL = (('usd_buy', 'best_usd_buy'),
             ('rub_buy', 'best_rub_buy'),
             ('rub_sell', 'best_rub_sell'),
             ('usd_buy_from euro', 'best_usd_buy_from euro'),
-            ('usd_sell_from euro', 'best_usd_sell_from euro'),)
+            ('usd_sell_from euro', 'best_usd_sell_from euro'),
+            )
 
 
 def choice_city():
@@ -39,7 +42,6 @@ def choice_city():
         except ValueError:
             print("Введите корректное значение!")
     return city
-
 
 
 def make_soup():
@@ -115,48 +117,113 @@ def parsing_soup():
                             dict_best_currency[bank_name].update({PROPOSAL[7][1]: td.get_text()})
                         continue
 
-    dict_currency = {bank: currencies for bank, currencies in dict_currency.items() for kind, value in currencies.items() if kind == 'usd_sell'}
+    dict_best_currency = {bank: currencies
+                          for bank, currencies in dict_best_currency.items()
+                          if currencies}
+
     return [dict_currency, dict_best_currency]
 
 
-def print_all_banks(dict_currency):
-    for bank, currencies in dict_currency.items():
+def print_banks(dict_currency, chosen_currency=None):
+    dynamic_dict = {}
+    if chosen_currency == PROPOSAL[0][1]:
+        dynamic_dict = {bank: {kind: value} for bank, currencies in dict_currency.items()
+                        for kind, value in currencies.items() if kind == PROPOSAL[0][1]}
+    elif chosen_currency == PROPOSAL[1][1]:
+        dynamic_dict = {bank: {kind: value} for bank, currencies in dict_currency.items()
+                        for kind, value in currencies.items() if kind == PROPOSAL[1][1]}
+    elif chosen_currency == PROPOSAL[2][1]:
+        dynamic_dict = {bank: {kind: value} for bank, currencies in dict_currency.items()
+                        for kind, value in currencies.items() if kind == PROPOSAL[2][1]}
+    elif chosen_currency == PROPOSAL[3][1]:
+        dynamic_dict = {bank: {kind: value} for bank, currencies in dict_currency.items()
+                        for kind, value in currencies.items() if kind == PROPOSAL[3][1]}
+    elif chosen_currency == PROPOSAL[4][1]:
+        dynamic_dict = {bank: {kind: value} for bank, currencies in dict_currency.items()
+                        for kind, value in currencies.items() if kind == PROPOSAL[4][1]}
+    elif chosen_currency == PROPOSAL[5][1]:
+        dynamic_dict = {bank: {kind: value} for bank, currencies in dict_currency.items()
+                        for kind, value in currencies.items() if kind == PROPOSAL[5][1]}
+    elif chosen_currency == PROPOSAL[6][1]:
+        dynamic_dict = {bank: {kind: value} for bank, currencies in dict_currency.items()
+                        for kind, value in currencies.items() if kind == PROPOSAL[6][1]}
+    elif chosen_currency == PROPOSAL[7][1]:
+        dynamic_dict = {bank: {kind: value} for bank, currencies in dict_currency.items()
+                        for kind, value in currencies.items() if kind == PROPOSAL[7][1]}
+    elif not chosen_currency:
+        dynamic_dict = dict_currency
+    for bank, currencies in dynamic_dict.items():
         print("\n" + bank + ":")
         for kind, value in currencies.items():
             print(kind + ": " + value)
 
 
-def print_best_banks(dict_best_currency, chosen_currency=None):
-    for bank, currencies in dict_best_currency.items():
-        print("\n" + bank + ":")
-        for kind, value in currencies.items():
-            if kind and value != '-':
-                print(kind + ": " + value)
-
-
 def user_input():
     list_soup = parsing_soup()
+
     def option_choose():
         print("1) Узнать все курсы валют\n"
               "2) Узнать банки с лучшим курсом валют\n"
-              "3) Узнать лучший курс продажи $\n"
-              "4) Узнать лучший курс покупки $\n"
-              "5) Узнать лучший курс продажи €\n"
-              "6) Узнать лучший курс покупки €")
+              "3) Узнать лучший курс покупки $\n"
+              "4) Узнать лучший курс продажи $\n"
+              "5) Узнать лучший курс покупки €\n"
+              "6) Узнать лучший курс продажи €\n"
+              "7) Узнать лучший курс покупки ₽\n"
+              "8) Узнать лучший курс продажи ₽\n"
+              "9) Узнать лучший курс покупки $ c €\n"
+              "10) Узнать лучший курс продажи $ c €\n"
+              )
+
         choice = input("Выберите пункт меню:")
         if choice == '1':
-            print_all_banks(list_soup[0])
+            print_banks(list_soup[0])
         elif choice == '2':
-            print_best_banks(list_soup[1])
+            print_banks(list_soup[1])
+        elif choice == '3':
+            print_banks(list_soup[1], chosen_currency=PROPOSAL[0][1])
+        elif choice == '4':
+            print_banks(list_soup[1], chosen_currency=PROPOSAL[1][1])
+        elif choice == '5':
+            print_banks(list_soup[1], chosen_currency=PROPOSAL[2][1])
+        elif choice == '6':
+            print_banks(list_soup[1], chosen_currency=PROPOSAL[3][1])
+        elif choice == '7':
+            print_banks(list_soup[1], chosen_currency=PROPOSAL[4][1])
+        elif choice == '8':
+            print_banks(list_soup[1], chosen_currency=PROPOSAL[5][1])
+        elif choice == '9':
+            print_banks(list_soup[1], chosen_currency=PROPOSAL[6][1])
+        elif choice == '10':
+            print_banks(list_soup[1], chosen_currency=PROPOSAL[7][1])
         else:
             print("Вы ввели неверное значение. Введите корректное...")
             sleep(1)
             return option_choose()
     option_choose()
 
+    def continue_work():
+        print("\n\nЖелаете продолжить?\n"
+              "1) Смотреть курс валют в текущем городе\n"
+              "2) Выбрать другой город\n"
+              "3) Выход")
+        continue_choice = input("Выберите пункт меню:")
+        if continue_choice == "1":
+            option_choose()
+        elif continue_choice == "2":
+            user_input()
+        elif continue_choice == "3":
+            exit()
+        else:
+            print("Вы ввели неверное значение. Введите корректное...")
+        return continue_choice
+
+    while continue_work() != "3":
+        continue_work()
+
 
 def main():
     user_input()
 
 
-main()
+if __name__ == "__main__":
+    main()
